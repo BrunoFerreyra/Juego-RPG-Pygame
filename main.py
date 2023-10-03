@@ -37,6 +37,7 @@ class Game:
         """
         for i, row in enumerate(tilemap):
             for j, column in enumerate(row):
+                Ground(self,j,i) #dibuja cesped en TODOS los cuadrados
                 if column == "B":
                     Block(self,j,i)
                 if column == "P":
