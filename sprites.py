@@ -31,9 +31,6 @@ class Spritesheet:
         return sprite
     
     
-    
-    
-    
 #pygame.sprite.Sprite es una clase del modulo pygame, de la que heredamos para crear el personaje
 #para hacerlo  mucho mas facil 
 class Player(pygame.sprite.Sprite):
@@ -95,8 +92,9 @@ class Player(pygame.sprite.Sprite):
         #recordemos que x_change es la variable temporal que nacio en 0 , luego movement() la cambia en funcion
         #de lo que apretemos, y aca es donde efectuamos ese movimiento
         self.rect.x += self.x_change
+        self.collide_blocks('x')  #CHEQUEAMOS COLISION
         self.rect.y += self.y_change
-        
+        self.collide_blocks('y')  #CHEQUEAMOS COLISION
         #seteamos denuevo en 0 a las variables temporales para que el cuadrado no se quede moviendo eternamente
         self.x_change = 0
         self.y_change = 0
@@ -132,7 +130,34 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_s]:
             self.y_change += PLAYER_SPEED
             self.facing = 'down'
-            
+    
+    def collide_blocks(self, direction):
+        #self es el personaje
+        if direction =='x':
+            # hits: variable booleana
+            # spritecollide() va a chequear si un cuadrado esta dentro de otro
+            #en este caso, self(player) dentro de un block (en el que no debemos entrar)
+            #entonces cuando este se ponga en true (porque hiteo)
+            #entonces hay que volver a poner al jugador en el limite
+            #recordar que self.game.blocks contiene CADA bloque del juego (los de colision )
+            #Ultimo parametro (false) es para deletear el sprite cuando colisione
+            #como no queremos que pase ponemos false, probaremos luego con true
+            hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
+            if hits:
+                if self.x_change > 0: #es decir estamos yendo a la derecha (si no entendes fijate la asignacion de teclas en movement())
+                    self.rect.x = hits[0].rect.left - self.rect.width
+                    #coloca al personaje justo a la izquierda del bloque
+                if self.x_change < 0: #izquierda
+                    self.rect.x = hits[0].rect.right
+        if direction == 'y':
+            hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
+            if hits:
+                if self.y_change > 0: #esta bajando
+                    self.rect.y = hits[0].rect.top - self.rect.height
+                if self.y_change < 0:
+                    self.rect.y = hits[0].rect.bottom
+                    
+                    
 class Block (pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         #cada bloque va a tener una posicion en x e y

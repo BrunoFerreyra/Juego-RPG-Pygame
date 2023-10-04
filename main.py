@@ -22,7 +22,6 @@ class Game:
         
         #instancio el personaje
         self.character_spritesheet = Spritesheet("img/character.png")
-        
         #
         self.terrain_spritesheet = Spritesheet("img/terrain.png")
         
