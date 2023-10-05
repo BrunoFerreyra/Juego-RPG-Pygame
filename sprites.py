@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         #la animacion tiene un conjunto de imagenes, que "miran" a distintos lados
         #vamos a instanciar con la predeterminada hacia abajo
         self.facing = 'down'
-        
+        self.animation_loop = 1
         
         #Ahora seteamos la imagen del jugador
         #lo que creamos aca es solo un rectangulo, "la superficie"
@@ -87,7 +87,7 @@ class Player(pygame.sprite.Sprite):
         
     def update(self):
         self.movement()
-        
+        self.animate()
         #cargamos los cambios de movimiento sobre "el jugador" (es decir el cuadrado)
         #recordemos que x_change es la variable temporal que nacio en 0 , luego movement() la cambia en funcion
         #de lo que apretemos, y aca es donde efectuamos ese movimiento
@@ -131,6 +131,7 @@ class Player(pygame.sprite.Sprite):
             self.y_change += PLAYER_SPEED
             self.facing = 'down'
     
+    #Metodo que se ocupa de controlar colisiones
     def collide_blocks(self, direction):
         #self es el personaje
         if direction =='x':
@@ -157,7 +158,64 @@ class Player(pygame.sprite.Sprite):
                 if self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
                     
-                    
+    #Metodo que se ocupa de colocar animaciones segun la direccion de movimiento
+    def animate(self):
+        #las siguientes listas contienen los recortes de la animacion (3 por direccion)
+        down_animations = [self.game.character_spritesheet.get_sprite(3, 2, self.width, self.height),
+                        self.game.character_spritesheet.get_sprite(35, 2, self.width, self.height),
+                        self.game.character_spritesheet.get_sprite(68, 2, self.width, self.height)]
+
+        up_animations = [self.game.character_spritesheet.get_sprite(3, 34, self.width, self.height),
+                        self.game.character_spritesheet.get_sprite(35, 34, self.width, self.height),
+                        self.game.character_spritesheet.get_sprite(68, 34, self.width, self.height)]
+
+        left_animations = [self.game.character_spritesheet.get_sprite(3, 98, self.width, self.height),
+                        self.game.character_spritesheet.get_sprite(35, 98, self.width, self.height),
+                        self.game.character_spritesheet.get_sprite(68, 98, self.width, self.height)]
+
+        right_animations = [self.game.character_spritesheet.get_sprite(3, 66, self.width, self.height),
+                            self.game.character_spritesheet.get_sprite(35, 66, self.width, self.height),
+                            self.game.character_spritesheet.get_sprite(68, 66, self.width, self.height)]
+        if self.facing == "down":
+            if self.y_change == 0: # si estamos quietos
+                #si esta mirando para abajo, mostrar una de las 3 animaciones que miran para abajo
+                self.image = self.game.character_spritesheet.get_sprite(3,2,self.width, self.height)
+            else: #si no estamos quietos:
+                #animation_loop es solo una variable que va aumentando en 0.1 con la linea de abajo
+                #entonces cada 10 frames pasara de 0 a 1 entonces cambiara la animacion
+                #hasta que llegue a 3 y entonces vuelva a 1
+                self.image = down_animations[math.floor(self.animation_loop)]
+                self.animation_loop += 0.1
+                if self.animation_loop >= 3:
+                    self.animation_loop = 1
+        if self.facing =="up":
+            if self.y_change == 0: # si estamos quietos
+                self.image = self.game.character_spritesheet.get_sprite(3,34,self.width, self.height)
+            else:
+                self.image = up_animations[math.floor(self.animation_loop)]
+                self.animation_loop += 0.1
+                if self.animation_loop >= 3:
+                    self.animation_loop = 1
+        
+        if self.facing == "right":
+            if self.x_change == 0: # si estamos quietos
+                    self.image = self.game.character_spritesheet.get_sprite(3, 66,self.width, self.height)
+            else:                 
+                self.image = right_animations[math.floor(self.animation_loop)]
+                self.animation_loop += 0.1
+                if self.animation_loop >= 3:
+                    self.animation_loop = 1
+            
+        if self.facing == "left":    
+            if self.x_change == 0: # si estamos quietos
+                self.image = self.game.character_spritesheet.get_sprite(3, 98,self.width, self.height)
+            else: 
+                self.image = left_animations[math.floor(self.animation_loop)]
+                self.animation_loop += 0.1
+                if self.animation_loop >= 3:
+                    self.animation_loop = 1
+        
+            
 class Block (pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         #cada bloque va a tener una posicion en x e y
